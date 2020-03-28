@@ -22,7 +22,9 @@ import {
   Loading,
   Icon,
   Panel,
-  Tag
+  Tag,
+  Calendar,
+  Card
 } from 'vant'
 import global from './global'
 
@@ -45,6 +47,8 @@ Vue.use(Loading)
 Vue.use(Icon)
 Vue.use(Panel)
 Vue.use(Tag)
+Vue.use(Calendar)
+Vue.use(Card)
 
 Vue.use(global)
 
