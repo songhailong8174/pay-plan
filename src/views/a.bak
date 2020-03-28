@@ -1,0 +1,203 @@
+<template>
+  <div>
+    <van-collapse accordion v-model="activeName">
+      <van-collapse-item title="计划信息" size="large" name="info">
+        <van-form @submit="onSubmit">
+          <van-field
+            readonly
+            clickable
+            label="计划年份"
+            name="planYear"
+            :value="planYear"
+            placeholder="选择年份"
+            @click="showPicker = true"
+          />
+          <van-popup v-model="showPicker" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="columns"
+              @cancel="showPicker = false"
+              @confirm="onYearConfirm"
+            />
+          </van-popup>
+          <van-field
+            v-model="planName"
+            name="planName"
+            label="计划名称"
+            placeholder="计划名称"
+          />
+          <van-field
+            type="number"
+            v-model="planAmount"
+            name="planAmount"
+            label="计划支出金额"
+            placeholder="计划支出金额"
+          />
+          <div style="margin: 16px;">
+            <van-button round block :disabled="saved" type="info" native-type="submit">
+              提交
+            </van-button>
+          </div>
+        </van-form>
+      </van-collapse-item>
+      <van-collapse-item title="计划明细" size="large" name="detail">
+        <div style="margin: 16px;">
+          <van-button round block @click="addDetail">
+            添加明细
+          </van-button>
+          <van-swipe-cell v-for="(item, index) in detailList" :key="index">
+            <van-cell :border="false" :title="item.name" :value="item.planAmount" />
+          </van-swipe-cell>
+        </div>
+      </van-collapse-item>
+    </van-collapse>
+    <van-overlay :show="isEdit">
+      <div class="wrapper" @click.stop>
+        <van-form @submit="addRecord">
+          <van-field
+            v-model="detailData.name"
+            name="name"
+            label="项目名称"
+            placeholder="支出项名称"
+          />
+          <van-field
+            type="number"
+            v-model="detailData.planAmount"
+            name="planAmount"
+            label="计划支出金额"
+            placeholder="计划支出金额"
+          />
+          <van-cell title="固定支出">
+            <template #right-icon>
+              <van-switch v-model="detailData.fixed" size="24" />
+            </template>
+          </van-cell>
+          <van-cell title="拆分到月">
+            <template #right-icon>
+              <van-switch v-model="detailData.splitMonth" size="24" />
+            </template>
+          </van-cell>
+          <van-field
+            v-model="detailData.used"
+            name="used"
+            label="用途"
+            placeholder="用途"
+          />
+          <div style="margin: 16px;">
+            <van-button round block type="info" native-type="submit">
+              添加
+            </van-button>
+          </div>
+          <div style="margin: 16px;">
+            <van-button round block @click="isEdit = false" native-type="reset">
+              取消
+            </van-button>
+          </div>
+        </van-form>
+      </div>
+    </van-overlay>
+  </div>
+</template>
+
+<script>
+const AV = require('leancloud-storage')
+export default {
+  data () {
+    return {
+      activeName: 'detail',
+      showPicker: false,
+      columns: [],
+      planYear: '',
+      planName: '',
+      planAmount: 0.0,
+      blanceAmount: 0.0,
+      amount: 0.0,
+      saved: false,
+      planId: '',
+      plan: {},
+      isEdit: false,
+      detailData: {
+        name: '',
+        planAmount: 0,
+        fixed: true,
+        splitMonth: true,
+        used: ''
+      },
+      detailList: []
+    }
+  },
+  created () {
+    this.initYear()
+  },
+  methods: {
+    initYear () {
+      let maxYear = 2031
+      for (let year = 2019; year < maxYear; year++) {
+        this.columns.push(year + '')
+      }
+    },
+    onYearConfirm (value) {
+      this.planYear = value
+      this.planName = `${value}年支出计划`
+      this.showPicker = false
+    },
+    addDetail () {
+      this.isEdit = true
+    },
+    addRecord (values) {
+      this.isEdit = false
+      let _detail = {
+        planId: this.plan
+      }
+      Object.keys(this.detailData).forEach(key => {
+        _detail[key] = this.detailData[key]
+      })
+      let YearPlanDetail = AV.Object.extend('YearPlanDetail')
+      let _planDetail = new YearPlanDetail()
+      Object.keys(_detail).forEach(key => {
+        _planDetail.set(key, _detail[key])
+      })
+      _planDetail.save().then(_result => {
+        this.detailList.push(_detail)
+        this.$toast.success('保存成功')
+        console.log(_result)
+      })
+    },
+    onSubmit (values) {
+      let YearPlan = AV.Object.extend('YearPlans')
+      let _plan = new YearPlan()
+      Object.keys(values).forEach(key => {
+        _plan.set(key, key === 'planAmount' ? Number(values[key]) : values[key])
+      })
+      let acl = new AV.ACL()
+      acl.setWriteAccess(AV.User.current(), true)
+      acl.setReadAccess('*', true)
+      _plan.setACL(acl)
+      _plan.save().then(_result => {
+        this.$toast.success('保存成功')
+        this.saved = true
+        this.planId = _result.id
+        this.plan = _result
+      })
+    }
+  }
+}
+</script>
+
+<style>
+.wrapper {
+  height: 100%;
+  text-align: left;
+  background-color: #fff;
+  /* display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; */
+}
+
+.block {
+  width: 120px;
+  height: 120px;
+  background-color: #fff;
+}
+</style>
