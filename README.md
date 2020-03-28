@@ -1,6 +1,6 @@
-# pay-plan
+# 家庭消费计划
 
-> A Vue.js project
+> 列出全年消费计划，根据选项生成到每月的详细消费计划
 
 ## Build Setup
 
