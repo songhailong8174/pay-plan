@@ -38,21 +38,22 @@
               />
             </van-popup>
             <van-field
+              type="number"
               label="消费金额"
-              :value="billData.amount"
+              v-model="billData.amount"
               placeholder="消费金额"
               input-align="right"
             />
             <van-field
               title="number"
               label="消费数量"
-              :value="billData.count"
+              v-model="billData.count"
               placeholder="消费数量"
               input-align="right"
             />
             <van-field
               label="消费场所"
-              v-model="billData.addName"
+              v-model="billData.addrName"
               placeholder="消费场所"
               input-align="right"
             />
@@ -208,17 +209,17 @@ export default {
         maxDate: new Date()
       },
       columns: [],
-      typeList: ['购物', '餐饮', '娱乐', '日用', '社交'],
-      payList: ['支付宝支付', '微信支付', '云闪付', '现金支付'],
+      typeList: ['购物', '餐饮', '娱乐', '日用', '社交', '健康'],
+      payList: ['支付宝支付', '微信支付', '云闪付', '现金支付', '银行卡'],
       voucherList: ['小票', '账单', '实物', '无'],
       activeName: '01',
       used: '',
       billData: {
         date: this.formatDate(new Date()),
         type: '',
-        amount: 0,
-        count: 1,
-        addName: '',
+        amount: '0',
+        count: '1',
+        addrName: '',
         payType: '',
         voucher: '',
         remark: ''
@@ -226,16 +227,17 @@ export default {
       itemList: [],
       itemData: {
         itemName: '',
-        quality: 1,
-        price: 1,
-        amount: 0,
+        quality: '1',
+        price: '1',
+        amount: '0',
         remark: '',
         cid1: '',
         cid2: '',
         cid3: '',
         cname1: '',
         cname2: '',
-        cname3: ''
+        cname3: '',
+        date: ''
       }
     }
   },
@@ -264,6 +266,7 @@ export default {
         })
         BillDetail.set('userId', AV.User.current())
         BillDetail.set('billId', Bill)
+        BillDetail.set('date', Bill.attributes.date)
         BillDetail.setACL(this.buildACL())
         list.push(BillDetail)
       })
@@ -285,9 +288,9 @@ export default {
         if (key === 'date') {
           this.billData[key] = this.formatDate(new Date())
         } else if (key === 'count') {
-          this.billData[key] = 1
+          this.billData[key] = '1'
         } else if (key === 'amount') {
-          this.billData[key] = 0
+          this.billData[key] = '0'
         } else {
           this.billData[key] = ''
         }
@@ -299,14 +302,18 @@ export default {
       this.used = ''
       Object.keys(this.itemData).forEach(key => {
         if (['quality', 'price', 'amount'].includes(key)) {
-          this.itemData[key] = key !== 'amount' ? 1 : 0
+          this.itemData[key] = key !== 'amount' ? '1' : '0'
         } else {
           this.itemData[key] = ''
         }
       })
     },
     formatDate (date) {
-      return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
+      return `${date.getFullYear()}-${this.padStr(date.getMonth() + 1)}-${this.padStr(date.getDate())}`
+    },
+    padStr (n) {
+      n = n.toString()
+      return n[1] ? n : '0' + n
     },
     calendarConfirm (date) {
       this.billData.date = this.formatDate(date)

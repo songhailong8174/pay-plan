@@ -9,6 +9,8 @@ import MonthPlanPage from '../views/plan/month'
 import MonthPlanDetail from '../views/plan/month/detail'
 import MyPage from '../views/my'
 import BillPage from '../views/bill'
+import HistoryPage from '../views/my/history'
+import HistoryOrder from '../views/my/history/order'
 
 Vue.use(Router)
 
@@ -60,6 +62,16 @@ export default new Router({
       name: 'MonthPlan',
       component: MonthPlanPage,
       path: '/month'
+    },
+    {
+      name: 'HistoryPage',
+      component: HistoryPage,
+      path: '/history'
+    },
+    {
+      name: 'HistoryOrder',
+      component: HistoryOrder,
+      path: '/history/order'
     }
   ]
 })

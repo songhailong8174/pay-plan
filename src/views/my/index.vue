@@ -6,8 +6,9 @@
       </ul>
     </div>
     <ul style="margin-top:30px;padding-left:20px;">
-      <van-cell title="年度计划" size="large" @click="itemClick('/plan/year/list')">
-      </van-cell>
+      <van-cell title="年度计划" size="large" @click="itemClick('/plan/year/list')" />
+      <van-cell title="历史数据" size="large" @click="itemClick('/history')" />
+      <van-cell title="历史订单" size="large" @click="itemClick('/history/order')" />
       <!-- <li @click="itemClick('/plan/year/list')">年度计划</li> -->
     </ul>
   </div>
